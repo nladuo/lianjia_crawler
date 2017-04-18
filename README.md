@@ -1,6 +1,5 @@
 # lianjia_crawler
-a lianjian web crawler for studying scrapy.<br>
-链家北京二手房爬取与展示
+学习scrapy，爬取链家北京二手房信息并展示北京房价走势。
 
 ## 运行
 ``` sh
