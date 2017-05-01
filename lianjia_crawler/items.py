@@ -8,7 +8,20 @@
 import scrapy
 
 
-class LianjiaCrawlerItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
-    pass
+class LinkItem(scrapy.Item):
+    url = scrapy.Field()
+    district = scrapy.Field()
+    location = scrapy.Field()
+
+
+class Item(scrapy.Item):
+    link_id = scrapy.Field()
+    url = scrapy.Field()
+    title = scrapy.Field()
+    xiaoqu = scrapy.Field()
+    address = scrapy.Field()
+    flood = scrapy.Field()
+    tag = scrapy.Field()
+    total_price = scrapy.Field()
+    unit_price = scrapy.Field()
+    time = scrapy.Field()

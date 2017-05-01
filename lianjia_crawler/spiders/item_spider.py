@@ -1,24 +1,48 @@
 # coding=utf8
 import scrapy
+from ..items import Item
+from ..pipelines import MongoDBPipeline
+from time import time
+import json
 """ 爬取二手房信息 """
 
 
 class ItemSpider(scrapy.Spider):
     name = "item"
     start_urls = [
-        'http://quotes.toscrape.com/page/1/',
+        'http://bj.lianjia.com/ershoufang/andingmen/',
     ]
 
-    def parse(self, response):
-        for quote in response.css('div.quote'):
-            yield {
-                'text': quote.css('span.text::text').extract_first(),
-                'author': quote.css('small.author::text').extract_first(),
-                'tags': quote.css('div.tags a.tag::text').extract(),
-            }
+    def start_requests(self):
+        pipeline = MongoDBPipeline()
+        for link in pipeline.get_links():
+            url = link["url"]
+            yield scrapy.Request(url=url, callback=lambda r, k=link["_id"], i=url: self.parse_item(r, k, i))
 
-        next_page = response.css('li.next a::attr(href)').extract_first()
-        if next_page is not None:
-            next_page = response.urljoin(next_page)
-            yield scrapy.Request(next_page, callback=self.parse)
+    def parse_item(self, response, link_id, base_url):
+        print response.url
+        for li in response.css('li.clear div.info'):
+            item = Item()
+            item["link_id"] = link_id
+            item["url"] = li.css('div.title a::attr(href)').extract_first()
+            item["title"] = li.css('div.title a::text').extract_first()
+            item["xiaoqu"] = li.css('div.address a::text').extract_first()
+            item["address"] = li.css('div.address div::text').extract_first()
+            item["flood"] = li.css('div.flood div::text').extract_first()
+            item["tag"] = li.css('div.tag span::text').extract_first()
+            item["total_price"] = li.css('div.totalPrice span::text').extract_first() + \
+                         li.css('div.totalPrice::text').extract_first()
+            item["unit_price"] = li.css('div.unitPrice span::text').extract_first()
+            item["time"] = time()
+
+            print item["url"], item["title"], item["unit_price"]
+            yield item
+
+        # 提取下一页
+        page_data = json.loads(response.css('div.contentBottom div.house-lst-page-box::attr(page-data)').
+                               extract_first())
+        if page_data["curPage"] < page_data["totalPage"]:
+            url = base_url + "/pg%d" % (page_data["curPage"] + 1)
+            print url
+            yield scrapy.Request(url, callback=lambda r, i=base_url: self.parse_item(r, i))
 

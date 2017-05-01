@@ -4,9 +4,19 @@
 ## Status
 正在编写中....
 
-## 运行
+## 运行爬虫
+### 爬取地址信息
 ``` sh
-bash run_crawler.sh
+scrapy crawl link   # 只运行一次即可
+```
+### 爬取房子信息
+``` sh
+scrapy crawl item
+```
+
+### 统计
+```
+python summarize
 ```
 
 ## LICENSE
