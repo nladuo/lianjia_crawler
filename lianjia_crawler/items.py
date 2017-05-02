@@ -25,3 +25,7 @@ class Item(scrapy.Item):
     total_price = scrapy.Field()
     unit_price = scrapy.Field()
     time = scrapy.Field()
+
+
+class FailedUrl(scrapy.Item):
+    url = scrapy.Field()

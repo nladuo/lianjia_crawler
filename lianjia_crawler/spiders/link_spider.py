@@ -12,7 +12,9 @@ class LinkSpider(scrapy.Spider):
 
     def parse(self, response):
         for detail in response.css("div.position dd div")[0].css("a"):
-            url = "http://bj.lianjia.com/%s" % detail.css('a::attr(href)').extract_first()
+            url = "http://bj.lianjia.com/%s" % detail.css('a::attr(href)').\
+                extract_first()
+            print url
             district = detail.css('a::text').extract_first()
             yield scrapy.Request(url, callback=lambda r, i=district: self.parse_detail(r, i))
 
@@ -21,5 +23,7 @@ class LinkSpider(scrapy.Spider):
             link = LinkItem()
             link["district"] = district
             link["location"] = detail.css('a::text').extract_first()
-            link["url"] = "http://bj.lianjia.com/%s" % detail.css('a::attr(href)').extract_first()
+            link["url"] = "http://bj.lianjia.com/%s" % detail.css('a::attr(href)').\
+                extract_first()
+            print link["url"]
             yield link

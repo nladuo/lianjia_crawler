@@ -6,7 +6,7 @@
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 import pymongo
 from scrapy.conf import settings
-from items import LinkItem, Item
+from items import LinkItem, Item, FailedUrl
 
 
 class MongoDBPipeline(object):
@@ -18,8 +18,10 @@ class MongoDBPipeline(object):
         db = connection[settings['MONGODB_DB']]
         self.links = db["links"]
         self.items = db["items"]
+        self.failed_urls = db["failed_urls"]
         self.links.ensure_index('url', unique=True)
         self.items.ensure_index('url', unique=True)
+        self.failed_urls.ensure_index('url', unique=True)
 
     def get_links(self):
         return self.links.find({})
@@ -29,5 +31,7 @@ class MongoDBPipeline(object):
             self.links.insert(dict(item))
         elif isinstance(item, Item):
             self.items.insert(dict(item))
+        elif isinstance(item, FailedUrl):
+            self.failed_urls.insert(dict(item))
 
         return item

@@ -1,8 +1,9 @@
 # coding=utf8
 import scrapy
-from ..items import Item
+from ..items import Item, FailedUrl
 from ..pipelines import MongoDBPipeline
 from time import time
+from urllib import unquote
 import json
 """ 爬取二手房信息 """
 
@@ -20,6 +21,18 @@ class ItemSpider(scrapy.Spider):
             yield scrapy.Request(url=url, callback=lambda r, k=link["_id"], i=url: self.parse_item(r, k, i))
 
     def parse_item(self, response, link_id, base_url):
+        print response.url
+        # ip被禁了
+        if response.url.startswith("http://captcha"):
+            failed_url = FailedUrl()
+            failed_url["url"] = unquote(response.url.split("redirect=")[1])
+            yield failed_url
+            return
+
+        # 没有结果
+        if response.css("div.m-noresult").extract_first() is not None:
+            return
+
         print response.url
         for li in response.css('li.clear div.info'):
             item = Item()
@@ -42,7 +55,6 @@ class ItemSpider(scrapy.Spider):
         page_data = json.loads(response.css('div.contentBottom div.house-lst-page-box::attr(page-data)').
                                extract_first())
         if page_data["curPage"] < page_data["totalPage"]:
-            url = base_url + "/pg%d" % (page_data["curPage"] + 1)
+            url = base_url + "pg%d/" % (page_data["curPage"] + 1)
             print url
-            yield scrapy.Request(url, callback=lambda r, i=base_url: self.parse_item(r, i))
-
+            yield scrapy.Request(url, callback=lambda r, k=link_id, i=base_url: self.parse_item(r, k, i))
