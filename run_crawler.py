@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """ 执行爬虫, 并对对房源进行信息统计 """
 import scrapy
-from scrapy import cmdline
+import os
 from lianjia_crawler.pipelines import MongoDBPipeline
 import time
 import sys
@@ -22,12 +22,12 @@ if __name__ == "__main__":
     # 判断是否爬取了link
     if mongo.get_links().count() == 0:
         print "爬取地区链接...."
-        cmdline.execute("scrapy crawl link".split())
+        os.system("scrapy crawl link")
 
     # 爬取item
     while True:
         print "爬取房源中....."
-        cmdline.execute("scrapy crawl item".split())
+        os.system("scrapy crawl item")
         if mongo.get_failed_urls().count() == 0:
             break
         print "休息一天再爬...."
