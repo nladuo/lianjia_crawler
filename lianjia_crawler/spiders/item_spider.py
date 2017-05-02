@@ -30,7 +30,7 @@ class ItemSpider(scrapy.Spider):
             # 清空failed_urls
             pipeline.delete_failed_urls()
             # 爬取下载失败的url
-            for failed_url in pipeline.failed_urls():
+            for failed_url in failed_urls:
                 url = failed_url["url"]
                 link_id = failed_url["link_id"]
                 base_url = failed_url["base_url"]
