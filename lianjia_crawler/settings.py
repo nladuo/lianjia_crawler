@@ -72,7 +72,7 @@ MONGODB_DB = "lianjia"
 CONCURRENT_REQUESTS = 2
 
 # Configure a delay for requests for the same website (default: 0)
-DOWNLOAD_DELAY = 20
+DOWNLOAD_DELAY = 60
 
 # Disable cookies (enabled by default)
 COOKIES_ENABLED = False
