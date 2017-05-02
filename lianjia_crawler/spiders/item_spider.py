@@ -16,9 +16,21 @@ class ItemSpider(scrapy.Spider):
 
     def start_requests(self):
         pipeline = MongoDBPipeline()
-        for link in pipeline.get_links():
-            url = link["url"]
-            yield scrapy.Request(url=url, callback=lambda r, k=link["_id"], i=url: self.parse_item(r, k, i))
+        if pipeline.get_failed_urls().count() == 0:
+            # 第一次爬取, 根据link表爬取
+            for link in pipeline.get_links():
+                url = link["url"]
+                yield scrapy.Request(url=url, callback=lambda r, k=link["_id"],
+                                                              i=url: self.parse_item(r, k, i))
+        else:
+            # 爬取下载失败的url
+            for failed_url in pipeline.get_failed_urls():
+                url = failed_url["url"]
+                link_id = failed_url["link_id"]
+                base_url = failed_url["base_url"]
+                yield scrapy.Request(url=url, callback=lambda r, k=link_id,
+                                                              i=base_url: self.parse_item(r, k, i))
+            pipeline.delete_failed_urls()  # 清空failed_urls
 
     def parse_item(self, response, link_id, base_url):
         print response.url
@@ -31,11 +43,13 @@ class ItemSpider(scrapy.Spider):
             yield failed_url
             return
 
-        # 没有结果
+        # 没有任何结果
         if response.css("div.m-noresult").extract_first() is not None:
             return
 
         print response.url
+
+        # 保存到mongodb
         for li in response.css('li.clear div.info'):
             item = Item()
             item["link_id"] = link_id
