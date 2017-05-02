@@ -23,14 +23,19 @@ class ItemSpider(scrapy.Spider):
                 yield scrapy.Request(url=url, callback=lambda r, k=link["_id"],
                                                               i=url: self.parse_item(r, k, i))
         else:
-            # 爬取下载失败的url
+            # 读取失败的链接到内存
+            failed_urls = []
             for failed_url in pipeline.get_failed_urls():
+                failed_urls.append(failed_url)
+            # 清空failed_urls
+            pipeline.delete_failed_urls()
+            # 爬取下载失败的url
+            for failed_url in pipeline.failed_urls():
                 url = failed_url["url"]
                 link_id = failed_url["link_id"]
                 base_url = failed_url["base_url"]
                 yield scrapy.Request(url=url, callback=lambda r, k=link_id,
                                                               i=base_url: self.parse_item(r, k, i))
-            pipeline.delete_failed_urls()  # 清空failed_urls
 
     def parse_item(self, response, link_id, base_url):
         print response.url
