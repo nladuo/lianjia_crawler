@@ -69,10 +69,10 @@ MONGODB_DB = "lianjia"
 
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
-CONCURRENT_REQUESTS = 2
+# CONCURRENT_REQUESTS = 2
 
 # Configure a delay for requests for the same website (default: 0)
-DOWNLOAD_DELAY = 3
+# DOWNLOAD_DELAY = 3
 
 # Disable cookies (enabled by default)
 COOKIES_ENABLED = False
