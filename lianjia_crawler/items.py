@@ -29,3 +29,6 @@ class Item(scrapy.Item):
 
 class FailedUrl(scrapy.Item):
     url = scrapy.Field()
+    base_url = scrapy.Field()
+    link_id = scrapy.Field()
+

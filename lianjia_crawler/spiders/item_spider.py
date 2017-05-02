@@ -26,6 +26,8 @@ class ItemSpider(scrapy.Spider):
         if response.url.startswith("http://captcha"):
             failed_url = FailedUrl()
             failed_url["url"] = unquote(response.url.split("redirect=")[1])
+            failed_url["base_url"] = base_url
+            failed_url["link_id"] = link_id
             yield failed_url
             return
 
