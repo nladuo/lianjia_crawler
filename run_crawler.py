@@ -50,6 +50,6 @@ if __name__ == "__main__":
     summarize()
 
     # 清空links表
-    mongo.delete_items()
+    #mongo.delete_items()
 
     print "完成!!"
