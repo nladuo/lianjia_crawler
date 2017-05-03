@@ -69,7 +69,7 @@ MONGODB_DB = "lianjia"
 
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
-# CONCURRENT_REQUESTS = 2
+CONCURRENT_REQUESTS = 5
 
 # Configure a delay for requests for the same website (default: 0)
 # DOWNLOAD_DELAY = 3
@@ -95,7 +95,8 @@ COOKIES_ENABLED = False
 # Enable or disable downloader middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
-   'lianjia_crawler.middlewares.UserAgentMiddleware': 1
+   'lianjia_crawler.middlewares.UserAgentMiddleware': 1,
+   'lianjia_crawler.middlewares.ProxyMiddleware': 100
 }
 
 # Enable or disable extensions

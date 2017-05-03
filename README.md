@@ -4,9 +4,13 @@
 ## Status
 正在编写中....
 
+## 运行代理ip采集器
+见: https://github.com/nladuo/IPProxyTool
+
 ## 运行爬虫
+采集到一定量的代理ip后, 运行爬虫
 ``` sh
-python run_crawler.py
+python -u run_crawler.py
 ```
 
 ## LICENSE

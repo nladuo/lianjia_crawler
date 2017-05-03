@@ -6,6 +6,7 @@
 # http://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
 import random
+from .proxy_manager import ProxyManager
 
 
 class UserAgentMiddleware(object):
@@ -22,3 +23,10 @@ class UserAgentMiddleware(object):
     def process_request(self, request, spider):
         request.headers.setdefault('User-Agent', random.choice(self.agents))
 
+
+class ProxyMiddleware(object):
+
+    def process_request(self, request, spider):
+        proxy = ProxyManager.get_instance().get_proxy()
+        if proxy is not None:
+            request.meta['proxy'] = "http://%s:%d" % (proxy["ip"], proxy["port"])
