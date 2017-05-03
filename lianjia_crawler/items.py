@@ -8,6 +8,12 @@
 import scrapy
 
 
+class DistrictItem(scrapy.Item):
+    url = scrapy.Field()
+    name = scrapy.Field()
+    locations = scrapy.Field()
+
+
 class LinkItem(scrapy.Item):
     url = scrapy.Field()
     district = scrapy.Field()

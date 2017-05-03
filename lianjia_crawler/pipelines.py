@@ -6,7 +6,7 @@
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 import pymongo
 from scrapy.utils.project import get_project_settings
-from items import LinkItem, Item, FailedUrl
+from items import DistrictItem, LinkItem, Item, FailedUrl
 
 
 class MongoDBPipeline(object):
@@ -17,9 +17,13 @@ class MongoDBPipeline(object):
             settings['MONGODB_PORT']
         )
         db = connection[settings['MONGODB_DB']]
+
+        self.districts = db["districts"]
         self.links = db["links"]
         self.items = db["items"]
         self.failed_urls = db["failed_urls"]
+
+        self.districts.ensure_index('url', unique=True)
         self.links.ensure_index('url', unique=True)
         self.items.ensure_index('url', unique=True)
         self.failed_urls.ensure_index('url', unique=True)
@@ -37,7 +41,9 @@ class MongoDBPipeline(object):
         self.items.delete_many({})
 
     def process_item(self, item, spider):
-        if isinstance(item, LinkItem):
+        if isinstance(item, DistrictItem):
+            self.districts.insert(dict(item))
+        elif isinstance(item, LinkItem):
             self.links.insert(dict(item))
         elif isinstance(item, Item):
             self.items.insert(dict(item))
