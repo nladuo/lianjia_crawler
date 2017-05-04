@@ -6,7 +6,7 @@
 见: https://github.com/nladuo/IPProxyTool
 
 ### 运行爬虫
-采集到一定量的代理ip后, 运行爬虫
+采集到一定量的代理ip后, 运行爬虫(放到后台)
 ``` sh
 python -u run_crawler.py
 ```
