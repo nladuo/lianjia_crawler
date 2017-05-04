@@ -8,7 +8,6 @@ import logging
 import re
 from lianjia_crawler.pipelines import MongoDBPipeline
 from lianjia_crawler.spiders.item_spider import ItemSpider
-from lianjia_crawler.spiders.link_spider import LinkSpider
 
 
 reload(sys)
@@ -18,6 +17,8 @@ scrapydo.setup()
 
 
 def summarize():
+    t0 = time.time()
+
     for link in mongo.get_links():
         _min = 9999999  # 每平米最低价格
         _max = 0        # 每平米最高价格
@@ -35,7 +36,7 @@ def summarize():
         _avg = total / items.count()
 
         mongo.db["sum"].insert({
-            "time": time.time(),
+            "time": t0,
             "link_id": link["_id"],
             "avg": _avg,
             "min": _min,
@@ -61,8 +62,7 @@ if __name__ == "__main__":
             scrapydo.run_spider(ItemSpider)
             if mongo.get_failed_urls().count() == 0:
                 break
-            print "休息6个小时再爬...."
-            time.sleep(6 * 3600)  # 6个小时之后再爬
+            print "开始第二次爬取房源...."
 
         print "爬取结束, 耗时%d秒" % (time.time() - t)
 
@@ -70,7 +70,7 @@ if __name__ == "__main__":
         print "开始统计..."
         summarize()
 
-        # 清空links表
+        # 清空items表
         mongo.delete_items()
 
         print "统计完成!!歇5天!!"
