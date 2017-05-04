@@ -16,12 +16,12 @@ class MongoDBPipeline(object):
             settings['MONGODB_SERVER'],
             settings['MONGODB_PORT']
         )
-        db = connection[settings['MONGODB_DB']]
+        self.db = connection[settings['MONGODB_DB']]
 
-        self.districts = db["districts"]
-        self.links = db["links"]
-        self.items = db["items"]
-        self.failed_urls = db["failed_urls"]
+        self.districts = self.db["districts"]
+        self.links = self.db["links"]
+        self.items = self.db["items"]
+        self.failed_urls = self.db["failed_urls"]
 
         self.districts.ensure_index('url', unique=True)
         self.links.ensure_index('url', unique=True)
@@ -30,6 +30,9 @@ class MongoDBPipeline(object):
 
     def get_links(self):
         return self.links.find({})
+
+    def get_items(self, link_id):
+        return self.items.find({"link_id": link_id})
 
     def get_failed_urls(self):
         return self.failed_urls.find({})
