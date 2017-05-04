@@ -39,8 +39,8 @@ class ItemSpider(scrapy.Spider):
 
     def parse_item(self, response, link_id, base_url):
         print response.url
-        # ip被禁了
-        if response.url.startswith("http://captcha"):
+        # ip被禁了, 或者代理出现错误
+        if not response.url.startswith("http://bj.lianjia"):
             failed_url = FailedUrl()
             failed_url["url"] = unquote(response.url.split("redirect=")[1])
             failed_url["base_url"] = base_url
