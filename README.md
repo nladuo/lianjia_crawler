@@ -8,7 +8,8 @@
 ### 运行爬虫
 采集到一定量的代理ip后, 运行爬虫(放到后台)
 ``` sh
-python -u run_crawler.py
+scrapy crawl link         # 爬取链接
+python -u run_crawler.py  # 爬取房源
 ```
 
 ## 数据可视化

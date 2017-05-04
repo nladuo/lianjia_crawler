@@ -55,11 +55,6 @@ if __name__ == "__main__":
         mongo = MongoDBPipeline()
         t = time.time()
 
-        # 判断是否爬取了link
-        if mongo.get_links().count() == 0:
-            print "爬取地区链接...."
-            scrapydo.run_spider(LinkSpider)
-
         # 爬取item
         while True:
             print "爬取房源中....."
