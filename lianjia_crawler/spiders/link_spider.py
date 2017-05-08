@@ -42,7 +42,7 @@ class LinkSpider(scrapy.Spider):
 
     def parse_detail(self, response, url, district):
         if not response.url.startswith("http://bj.lianjia"):
-            print "Anti-Spider occurred, re-adding url:", response.url
+            print "Anti-Spider occurred, \n\tredirect to: ", response.url, "\n\tre-adding url:", url
             yield scrapy.Request(url,
                                  dont_filter=True,
                                  callback=lambda r, k=url, i=district: self.parse_detail(r, k, i),
