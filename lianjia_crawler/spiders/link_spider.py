@@ -35,10 +35,7 @@ class LinkSpider(scrapy.Spider):
                 link["location"] = detail.css('a::text').extract_first()
                 link["url"] = "http://bj.lianjia.com/%s" % detail.css('a::attr(href)').\
                     extract_first()
-                locations.append({
-                    "location": link["location"],
-                    "url": link["url"]
-                })
+                locations.append(link["location"])
                 print link["url"]
                 yield link
             district_item["locations"] = json.dumps(locations)

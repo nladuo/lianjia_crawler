@@ -40,9 +40,6 @@ class MongoDBPipeline(object):
     def delete_failed_urls(self):
         self.failed_urls.delete_many({})
 
-    def delete_items(self):
-        self.items.delete_many({})
-
     def process_item(self, item, spider):
         if isinstance(item, DistrictItem):
             self.districts.insert(dict(item))

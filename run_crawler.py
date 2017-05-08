@@ -8,6 +8,7 @@ import logging
 import re
 from lianjia_crawler.pipelines import MongoDBPipeline
 from lianjia_crawler.spiders.item_spider import ItemSpider
+from lianjia_crawler.spiders.link_spider import LinkSpider
 
 
 reload(sys)
@@ -37,7 +38,7 @@ def summarize():
 
         mongo.db["sum"].insert({
             "time": t0,
-            "link_id": link["_id"],
+            "location": link["location"],
             "avg": _avg,
             "min": _min,
             "max": _max
@@ -46,17 +47,18 @@ def summarize():
 
 
 if __name__ == "__main__":
+    logging.basicConfig(
+        filename='spider.log',
+        format='%(levelname)s %(asctime)s: %(message)s',
+        level=logging.DEBUG
+    )
     while True:
-        logging.basicConfig(
-            filename='spider.log',
-            format='%(levelname)s %(asctime)s: %(message)s',
-            level=logging.DEBUG
-        )
-
         mongo = MongoDBPipeline()
         t = time.time()
+        # 1、爬取连接，并更新district
+        scrapydo.run_spider(LinkSpider)
 
-        # 爬取item
+        # 2、爬取item
         while True:
             print "爬取房源中....."
             scrapydo.run_spider(ItemSpider)
@@ -66,12 +68,13 @@ if __name__ == "__main__":
 
         print "爬取结束, 耗时%d秒" % (time.time() - t)
 
-        # 进行统计
+        # 3、根据location的名字进行统计
         print "开始统计..."
         summarize()
 
-        # 清空items表
-        mongo.delete_items()
+        # 4、清空items表和link表
+        mongo.db["items"].delete_many({})
+        mongo.db["links"].delete_many({})
 
         print "统计完成!!歇5天!!"
         time.sleep(5 * 24 * 3600)  # 五天之后再次运行
