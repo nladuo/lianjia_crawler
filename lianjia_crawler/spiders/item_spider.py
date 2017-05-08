@@ -3,7 +3,6 @@ import scrapy
 from ..items import Item, FailedUrl
 from ..pipelines import MongoDBPipeline
 from time import time
-from urllib import unquote
 import json
 """ 爬取二手房信息 """
 
@@ -17,8 +16,10 @@ class ItemSpider(scrapy.Spider):
             # 第一次爬取, 根据link表爬取
             for link in pipeline.get_links():
                 url = link["url"]
-                yield scrapy.Request(url=url, callback=lambda r, k=link["_id"],
-                                                              i=url: self.parse_item(r, k, i))
+                yield scrapy.Request(url=url,
+                                     dont_filter=True,
+                                     callback=lambda r, k=link["_id"], m=url, i=url: self.parse_item(r, k, m, i),
+                                     errback=lambda f, k=link["_id"], m=url, i=url: self.errback(f, k, m, i))
         else:
             # 读取失败的链接到内存
             failed_urls = []
@@ -31,15 +32,17 @@ class ItemSpider(scrapy.Spider):
                 url = failed_url["url"]
                 link_id = failed_url["link_id"]
                 base_url = failed_url["base_url"]
-                yield scrapy.Request(url=url, callback=lambda r, k=link_id,
-                                                              i=base_url: self.parse_item(r, k, i))
+                yield scrapy.Request(url=url,
+                                     dont_filter=True,
+                                     callback=lambda r, k=link_id, m=url, i=base_url: self.parse_item(r, k, m, i),
+                                     errback=lambda f, k=link_id, m=url, i=base_url: self.errback(f, k, m, i))
 
-    def parse_item(self, response, link_id, base_url):
+    def parse_item(self, response, link_id, init_url, base_url):
         print response.url
         # ip被禁了, 或者代理出现错误
         if not response.url.startswith("http://bj.lianjia"):
             failed_url = FailedUrl()
-            failed_url["url"] = unquote(response.url.split("redirect=")[1])
+            failed_url["url"] = init_url
             failed_url["base_url"] = base_url
             failed_url["link_id"] = link_id
             yield failed_url
@@ -75,4 +78,16 @@ class ItemSpider(scrapy.Spider):
         if page_data["curPage"] < page_data["totalPage"]:
             url = base_url + "pg%d/" % (page_data["curPage"] + 1)
             print url
-            yield scrapy.Request(url, callback=lambda r, k=link_id, i=base_url: self.parse_item(r, k, i))
+            yield scrapy.Request(url,
+                                 dont_filter=True,
+                                 callback=lambda r, k=link_id, m=url, i=base_url: self.parse_item(r, k, m, i),
+                                 errback=lambda f, k=link_id, m=url, i=base_url: self.errback(f, k, m, i))
+
+    def errback(self, failure, link_id, init_url, base_url):
+        print repr(failure)
+        failed_url = FailedUrl()
+        failed_url["url"] = init_url
+        failed_url["base_url"] = base_url
+        failed_url["link_id"] = link_id
+        yield failed_url
+
