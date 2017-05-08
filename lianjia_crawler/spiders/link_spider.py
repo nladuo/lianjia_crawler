@@ -12,7 +12,7 @@ class LinkSpider(scrapy.Spider):
     ]
 
     def parse(self, response):
-        if response.status != 200 or not response.url.startswith("http://bj.lianjia"):
+        if not response.url.startswith("http://bj.lianjia"):
             yield scrapy.Request(self.start_urls[0], callback=self.parse)
 
         for detail in response.css("div.position dd div")[0].css("a"):
@@ -20,10 +20,11 @@ class LinkSpider(scrapy.Spider):
                 extract_first()
             print url
             district = detail.css('a::text').extract_first()
-            yield scrapy.Request(url, callback=lambda r, k=url, i=district: self.parse_detail(r, k, i))
+            yield scrapy.Request(url, callback=lambda r, k=url, i=district: self.parse_detail(r, k, i),
+                                 errback=self.errback)
 
     def parse_detail(self, response, url, district):
-        if response.status != 200 or not response.url.startswith("http://bj.lianjia"):
+        if not response.url.startswith("http://bj.lianjia"):
             print "response error occurred, status_code:", response.status, " url:", response.url
             yield scrapy.Request(url, callback=lambda r, k=url, i=district: self.parse_detail(r, k, i))
 
@@ -42,3 +43,9 @@ class LinkSpider(scrapy.Spider):
             yield link
         district_item["locations"] = json.dumps(locations)
         yield district_item
+
+    def errback(self, failure):
+        print repr(failure)
+
+
+
