@@ -77,10 +77,6 @@ CONCURRENT_REQUESTS = 4
 # Disable cookies (enabled by default)
 COOKIES_ENABLED = False
 
-# Download(With Proxy) Failed Retry Times
-RETRY_ENABLED = True
-RETRY_TIMES = 20
-
 # Disable Telnet Console (enabled by default)
 #TELNETCONSOLE_ENABLED = False
 
