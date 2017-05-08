@@ -24,6 +24,7 @@ class LinkSpider(scrapy.Spider):
 
     def parse_detail(self, response, url, district):
         if response.status != 200 or not response.url.startswith("http://bj.lianjia"):
+            print "response error occurred, status_code:", response.status, " url:", response.url
             yield scrapy.Request(url, callback=lambda r, k=url, i=district: self.parse_detail(r, k, i))
 
         district_item = DistrictItem()
