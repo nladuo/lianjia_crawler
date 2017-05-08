@@ -13,20 +13,14 @@ class LinkSpider(scrapy.Spider):
 
     def start_requests(self):
         yield scrapy.Request(self.s_urls[0],
-                             meta={
-                                 'dont_redirect': True,
-                                 'handle_httpstatus_list': [302]
-                             },
+                             dont_filter=True,
                              callback=self.parse,
                              errback=lambda r, k="", i="": self.errback(r, k, i))
 
     def parse(self, response):
         if not response.url.startswith("http://bj.lianjia"):
             yield scrapy.Request(self.s_urls[0],
-                                 meta={
-                                     'dont_redirect': True,
-                                     'handle_httpstatus_list': [302]
-                                 },
+                                 dont_filter=True,
                                  callback=self.parse,
                                  errback=lambda r, k="", i="": self.errback(r, k, i))
 
@@ -37,18 +31,12 @@ class LinkSpider(scrapy.Spider):
                 print url
                 district = detail.css('a::text').extract_first()
                 yield scrapy.Request(url,
-                                     meta={
-                                         'dont_redirect': True,
-                                         'handle_httpstatus_list': [302]
-                                     },
+                                     dont_filter=True,
                                      callback=lambda r, k=url, i=district: self.parse_detail(r, k, i),
                                      errback=lambda r, k=url, i=district: self.errback(r, k, i))
         except:
             yield scrapy.Request(self.s_urls[0],
-                                 meta={
-                                     'dont_redirect': True,
-                                     'handle_httpstatus_list': [302]
-                                 },
+                                 dont_filter=True,
                                  callback=self.parse,
                                  errback=lambda r, k="", i="": self.errback(r, k, i))
 
@@ -56,10 +44,7 @@ class LinkSpider(scrapy.Spider):
         if not response.url.startswith("http://bj.lianjia"):
             print "Anti-Spider occurred, re-adding url:", response.url
             yield scrapy.Request(url,
-                                 meta={
-                                     'dont_redirect': True,
-                                     'handle_httpstatus_list': [302]
-                                 },
+                                 dont_filter=True,
                                  callback=lambda r, k=url, i=district: self.parse_detail(r, k, i),
                                  errback=lambda r, k=url, i=district: self.errback(r, k, i))
 
@@ -81,10 +66,7 @@ class LinkSpider(scrapy.Spider):
             yield district_item
         except:
             yield scrapy.Request(url,
-                                 meta={
-                                     'dont_redirect': True,
-                                     'handle_httpstatus_list': [302]
-                                 },
+                                 dont_filter=True,
                                  callback=lambda r, k=url, i=district: self.parse_detail(r, k, i),
                                  errback=lambda r, k=url, i=district: self.errback(r, k, i))
 
@@ -94,19 +76,13 @@ class LinkSpider(scrapy.Spider):
         if url == "":
             print "\tre-adding url:", self.s_urls[0]
             yield scrapy.Request(url,
-                                 meta={
-                                     'dont_redirect': True,
-                                     'handle_httpstatus_list': [302]
-                                 },
+                                 dont_filter=True,
                                  callback=lambda r, k=url, i=district: self.parse_detail(r, k, i),
                                  errback=lambda r, k=url, i=district: self.errback(r, k, i))
         else:
             print "\tre-adding url:", url
             yield scrapy.Request(url,
-                                 meta={
-                                     'dont_redirect': True,
-                                     'handle_httpstatus_list': [302]
-                                 },
+                                 dont_filter=True,
                                  callback=lambda r, k=url, i=district: self.parse_detail(r, k, i),
                                  errback=lambda r, k=url, i=district: self.errback(r, k, i))
 
