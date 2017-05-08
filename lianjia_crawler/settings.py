@@ -78,7 +78,9 @@ CONCURRENT_REQUESTS = 4
 COOKIES_ENABLED = False
 
 # Download(With Proxy) Failed Retry Times
+RETRY_ENABLED = True
 RETRY_TIMES = 20
+RETRY_HTTP_CODES = [500, 502, 503, 504, 408, 302, 401]
 
 # Disable Telnet Console (enabled by default)
 #TELNETCONSOLE_ENABLED = False
