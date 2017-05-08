@@ -7,49 +7,68 @@ import json
 
 class LinkSpider(scrapy.Spider):
     name = "link"
-    start_urls = [
+    s_urls = [
         'http://bj.lianjia.com/ershoufang/',
     ]
 
+    def start_requests(self):
+        yield scrapy.Request(self.s_urls[0], callback=self.parse,
+                             errback=lambda r, k="", i="": self.errback(r, k, i))
+
     def parse(self, response):
         if not response.url.startswith("http://bj.lianjia"):
-            yield scrapy.Request(self.start_urls[0], callback=self.parse)
+            yield scrapy.Request(self.s_urls[0], callback=self.parse,
+                                 errback=lambda r, k="", i="": self.errback(r, k, i))
 
-        for detail in response.css("div.position dd div")[0].css("a"):
-            url = "http://bj.lianjia.com/%s" % detail.css('a::attr(href)').\
-                extract_first()
-            print url
-            district = detail.css('a::text').extract_first()
-            yield scrapy.Request(url, callback=lambda r, k=url, i=district: self.parse_detail(r, k, i),
-                                 errback=lambda r, k=url, i=district: self.errback(r, k, i))
+        try:
+            for detail in response.css("div.position dd div")[0].css("a"):
+                url = "http://bj.lianjia.com/%s" % detail.css('a::attr(href)').\
+                    extract_first()
+                print url
+                district = detail.css('a::text').extract_first()
+                yield scrapy.Request(url, callback=lambda r, k=url, i=district: self.parse_detail(r, k, i),
+                                     errback=lambda r, k=url, i=district: self.errback(r, k, i))
+        except:
+            yield scrapy.Request(self.s_urls[0], callback=self.parse,
+                                 errback=lambda r, k="", i="": self.errback(r, k, i))
 
     def parse_detail(self, response, url, district):
         if not response.url.startswith("http://bj.lianjia"):
-            print "response error occurred, status_code:", response.status, " url:", response.url
+            print "Anti-Spider occurred, re-adding url:", response.url
             yield scrapy.Request(url, callback=lambda r, k=url, i=district: self.parse_detail(r, k, i),
                                  errback=lambda r, k=url, i=district: self.errback(r, k, i))
 
-        district_item = DistrictItem()
-        district_item["url"] = response.url
-        district_item["name"] = district
-        locations = []
-        for detail in response.css("div.position dd div div")[1].css("a"):
-            link = LinkItem()
-            link["district"] = district
-            link["location"] = detail.css('a::text').extract_first()
-            link["url"] = "http://bj.lianjia.com/%s" % detail.css('a::attr(href)').\
-                extract_first()
-            locations.append(link["location"])
-            print link["url"]
-            yield link
-        district_item["locations"] = json.dumps(locations)
-        yield district_item
+        try:
+            district_item = DistrictItem()
+            district_item["url"] = response.url
+            district_item["name"] = district
+            locations = []
+            for detail in response.css("div.position dd div div")[1].css("a"):
+                link = LinkItem()
+                link["district"] = district
+                link["location"] = detail.css('a::text').extract_first()
+                link["url"] = "http://bj.lianjia.com/%s" % detail.css('a::attr(href)').\
+                    extract_first()
+                locations.append(link["location"])
+                print link["url"]
+                yield link
+            district_item["locations"] = json.dumps(locations)
+            yield district_item
+        except:
+            yield scrapy.Request(url, callback=lambda r, k=url, i=district: self.parse_detail(r, k, i),
+                                 errback=lambda r, k=url, i=district: self.errback(r, k, i))
 
     def errback(self, failure, url, district):
         """ 出现失败重新添加到爬虫队列 """
-        print repr(failure), "\n\tre-adding url:", url
-        yield scrapy.Request(url, callback=lambda r, k=url, i=district: self.parse_detail(r, k, i),
-                             errback=lambda r, k=url, i=district: self.errback(r, k, i))
+        print repr(failure)
+        if url == "":
+            print "\tre-adding url:", self.s_urls[0]
+            yield scrapy.Request(url, callback=lambda r, k=url, i=district: self.parse_detail(r, k, i),
+                                 errback=lambda r, k=url, i=district: self.errback(r, k, i))
+        else:
+            print "\tre-adding url:", url
+            yield scrapy.Request(url, callback=lambda r, k=url, i=district: self.parse_detail(r, k, i),
+                                 errback=lambda r, k=url, i=district: self.errback(r, k, i))
 
 
 

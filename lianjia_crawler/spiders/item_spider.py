@@ -10,9 +10,6 @@ import json
 
 class ItemSpider(scrapy.Spider):
     name = "item"
-    start_urls = [
-        'http://bj.lianjia.com/ershoufang/andingmen/',
-    ]
 
     def start_requests(self):
         pipeline = MongoDBPipeline()
