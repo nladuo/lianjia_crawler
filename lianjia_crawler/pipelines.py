@@ -41,13 +41,16 @@ class MongoDBPipeline(object):
         self.failed_urls.delete_many({})
 
     def process_item(self, item, spider):
-        if isinstance(item, DistrictItem):
-            self.districts.insert(dict(item))
-        elif isinstance(item, LinkItem):
-            self.links.insert(dict(item))
-        elif isinstance(item, Item):
-            self.items.insert(dict(item))
-        elif isinstance(item, FailedUrl):
-            self.failed_urls.insert(dict(item))
+        try:
+            if isinstance(item, DistrictItem):
+                self.districts.insert(dict(item))
+            elif isinstance(item, LinkItem):
+                self.links.insert(dict(item))
+            elif isinstance(item, Item):
+                self.items.insert(dict(item))
+            elif isinstance(item, FailedUrl):
+                self.failed_urls.insert(dict(item))
+        except:
+            pass
 
         return item
