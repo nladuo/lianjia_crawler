@@ -21,12 +21,13 @@ class LinkSpider(scrapy.Spider):
             print url
             district = detail.css('a::text').extract_first()
             yield scrapy.Request(url, callback=lambda r, k=url, i=district: self.parse_detail(r, k, i),
-                                 errback=lambda r, k=url: self.errback(r, k))
+                                 errback=lambda r, k=url, i=district: self.errback(r, k, i))
 
     def parse_detail(self, response, url, district):
         if not response.url.startswith("http://bj.lianjia"):
             print "response error occurred, status_code:", response.status, " url:", response.url
-            yield scrapy.Request(url, callback=lambda r, k=url, i=district: self.parse_detail(r, k, i))
+            yield scrapy.Request(url, callback=lambda r, k=url, i=district: self.parse_detail(r, k, i),
+                                 errback=lambda r, k=url, i=district: self.errback(r, k, i))
 
         district_item = DistrictItem()
         district_item["url"] = response.url
@@ -44,8 +45,11 @@ class LinkSpider(scrapy.Spider):
         district_item["locations"] = json.dumps(locations)
         yield district_item
 
-    def errback(self, failure, url):
-        print repr(failure), "\n\turl:", url
+    def errback(self, failure, url, district):
+        """ 出现失败重新添加到爬虫队列 """
+        print repr(failure), "\n\tre-adding url:", url
+        yield scrapy.Request(url, callback=lambda r, k=url, i=district: self.parse_detail(r, k, i),
+                             errback=lambda r, k=url, i=district: self.errback(r, k, i))
 
 
 
