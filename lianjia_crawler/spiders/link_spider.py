@@ -21,7 +21,7 @@ class LinkSpider(scrapy.Spider):
             print url
             district = detail.css('a::text').extract_first()
             yield scrapy.Request(url, callback=lambda r, k=url, i=district: self.parse_detail(r, k, i),
-                                 errback=self.errback)
+                                 errback=lambda r, k=url: self.errback(r, k))
 
     def parse_detail(self, response, url, district):
         if not response.url.startswith("http://bj.lianjia"):
@@ -44,8 +44,8 @@ class LinkSpider(scrapy.Spider):
         district_item["locations"] = json.dumps(locations)
         yield district_item
 
-    def errback(self, failure):
-        print repr(failure)
+    def errback(self, failure, url):
+        print repr(failure), "\n\turl:", url
 
 
 
