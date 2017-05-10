@@ -38,15 +38,17 @@ class ItemSpider(scrapy.Spider):
                                      errback=lambda f, k=link_id, m=url, i=base_url: self.errback(f, k, m, i))
 
     def parse_item(self, response, link_id, init_url, base_url):
-        print response.url
         # ip被禁了, 或者代理出现错误
         if not response.url.startswith("http://bj.lianjia"):
+            print "Anti-Spider occurred, \n\tredirect to: ", response.url, "\n\tre-adding url:", init_url
             failed_url = FailedUrl()
             failed_url["url"] = init_url
             failed_url["base_url"] = base_url
             failed_url["link_id"] = link_id
             yield failed_url
             return
+
+        print response.url
 
         # 没有任何结果
         if response.css("div.m-noresult").extract_first() is not None:
@@ -84,7 +86,6 @@ class ItemSpider(scrapy.Spider):
                                  errback=lambda f, k=link_id, m=url, i=base_url: self.errback(f, k, m, i))
 
     def errback(self, failure, link_id, init_url, base_url):
-        
         print repr(failure)
         failed_url = FailedUrl()
         failed_url["url"] = init_url
