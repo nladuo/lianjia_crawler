@@ -59,11 +59,14 @@ class ItemSpider(scrapy.Spider):
         # 保存到mongodb
         for li in response.css('li.clear div.info'):
             item = Item()
+            item["title"] = li.css('div.title a::text').extract_first()
+            item["address"] = li.css('div.address div::text').extract_first()
+            if "车位" in item["address"]:
+                print item["title"], item["address"]
+                continue
             item["link_id"] = link_id
             item["url"] = li.css('div.title a::attr(href)').extract_first()
-            item["title"] = li.css('div.title a::text').extract_first()
             item["xiaoqu"] = li.css('div.address a::text').extract_first()
-            item["address"] = li.css('div.address div::text').extract_first()
             item["flood"] = li.css('div.flood div::text').extract_first()
             item["tag"] = li.css('div.tag span::text').extract_first()
             item["total_price"] = li.css('div.totalPrice span::text').extract_first() + \
