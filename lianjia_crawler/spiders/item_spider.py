@@ -84,6 +84,7 @@ class ItemSpider(scrapy.Spider):
                                  errback=lambda f, k=link_id, m=url, i=base_url: self.errback(f, k, m, i))
 
     def errback(self, failure, link_id, init_url, base_url):
+        
         print repr(failure)
         failed_url = FailedUrl()
         failed_url["url"] = init_url
