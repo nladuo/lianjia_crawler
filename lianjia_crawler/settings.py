@@ -74,6 +74,9 @@ CONCURRENT_REQUESTS = 4
 # Configure a delay for requests for the same website (default: 0)
 # DOWNLOAD_DELAY = 3
 
+# Disable Retry
+RETRY_ENABLE = False
+
 # Disable cookies (enabled by default)
 COOKIES_ENABLED = False
 
