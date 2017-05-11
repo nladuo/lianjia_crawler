@@ -62,7 +62,7 @@ class ItemSpider(scrapy.Spider):
             item["title"] = li.css('div.title a::text').extract_first()
             item["address"] = li.css('div.address div::text').extract_first()
             if "车位" in item["address"]:
-                print item["title"], item["address"]
+                print "Skipped:", item["title"], item["address"]
                 continue
             item["link_id"] = link_id
             item["url"] = li.css('div.title a::attr(href)').extract_first()
