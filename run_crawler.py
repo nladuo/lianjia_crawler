@@ -41,7 +41,8 @@ def summarize():
             "location": link["location"],
             "avg": _avg,
             "min": _min,
-            "max": _max
+            "max": _max,
+            "house_num": items.count()  # 爬取到的房子的个数
         })
         print link["district"], link["location"], "均价:", _avg, "最低:", _min, "最高:", _max
 
