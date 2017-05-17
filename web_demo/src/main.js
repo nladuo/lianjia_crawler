@@ -20,7 +20,7 @@ new Vue({
          if(this.selectedDistrict == this.districts[i].name) {
            console.log(this.districts[i].locations);
            let _locations = JSON.parse(this.districts[i].locations);
-           this.selectedLocation = _locations[0].location;
+           this.selectedLocation = _locations[0];
            return _locations;
          }
        }
@@ -42,7 +42,7 @@ new Vue({
 
      getSum() {
        Api.get("/api/sum", {location: this.selectedLocation}, (data) => {
-         console.log(data);
+         console.log(JSON.stringify(data));
          if (data != null) {
 
          }

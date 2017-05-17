@@ -23,10 +23,7 @@ def get_districts():
 
 def get_sum(location):
     connection, db = init_client()
-    link = db.links.find_one({"location": location})
-    _sum = []
-    if link is not None:
-        _sum = db.sum.find({"link_id": link["_id"]})
+    _sum = db.sum.find({"location": location})
     connection.close()
     return json_util.dumps(list(_sum))
 

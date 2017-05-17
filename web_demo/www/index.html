@@ -24,7 +24,7 @@
              <option v-for="district in districts">{{ district.name }}</option>
            </select>
            <select class="form-control" placeholder="选择地点" v-model="selectedLocation">
-             <option v-for="location in locations">{{ location.location }}</option>
+             <option v-for="location in locations">{{ location }}</option>
            </select>
            <div class="input-group-btn">
              <button @click="getSum" class="btn btn-primary btn-block">查询房价曲线</button>
