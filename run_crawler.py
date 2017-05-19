@@ -23,7 +23,7 @@ def summarize():
     for link in mongo.get_links():
         _min = 9999999  # 每平米最低价格
         _max = 0        # 每平米最高价格
-        total = 0      # 每平米总价格
+        total = 0       # 每平米总价格
         items = mongo.items.find({"link_id": link["_id"]})
         if items.count() == 0:
             continue
@@ -44,7 +44,8 @@ def summarize():
             "max": _max,
             "house_num": items.count()  # 爬取到的房子的个数
         })
-        print link["district"], link["location"], "均价:", _avg, "最低:", _min, "最高:", _max
+        print link["district"], link["location"], "均价:", _avg, "最低:", _min, \
+            "最高:", _max, "房源个数:", items.count()
 
 
 if __name__ == "__main__":
@@ -53,29 +54,30 @@ if __name__ == "__main__":
         format='%(levelname)s %(asctime)s: %(message)s',
         level=logging.DEBUG
     )
-    # while True:
-    mongo = MongoDBPipeline()
-    t = time.time()
-    # 1、爬取连接，并更新district
-    scrapydo.run_spider(LinkSpider)
-
-    # 2、爬取item
     while True:
-        print "爬取房源中....."
-        scrapydo.run_spider(ItemSpider)
-        if mongo.get_failed_urls().count() == 0:
-            break
-        print "开始再次爬取房源...."
+        mongo = MongoDBPipeline()
+        t = time.time()
 
-    print "爬取结束, 耗时%d秒" % (time.time() - t)
+        # 1、清空items表和link表, 暂时不清空
+        mongo.db["items"].delete_many({})
+        mongo.db["links"].delete_many({})
 
-    # 3、根据location的名字进行统计
-    print "开始统计..."
-    summarize()
+        # 2、爬取连接，并更新district
+        scrapydo.run_spider(LinkSpider)
 
-    # 4、清空items表和link表, 暂时不清空
-    # mongo.db["items"].delete_many({})
-    # mongo.db["links"].delete_many({})
+        # 3、爬取item
+        while True:
+            print "爬取房源中....."
+            scrapydo.run_spider(ItemSpider)
+            if mongo.get_failed_urls().count() == 0:
+                break
+            print "开始再次爬取房源...."
 
-    # print "统计完成!!歇5天!!"
-    # time.sleep(5 * 24 * 3600)  # 五天之后再次运行
+        print "爬取结束, 耗时%d秒" % (time.time() - t)
+
+        # 4、根据location的名字进行统计
+        print "开始统计..."
+        summarize()
+
+        print "统计完成!!歇5天!!"
+        time.sleep(5 * 24 * 3600)  # 五天之后再次运行
