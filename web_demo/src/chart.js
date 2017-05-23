@@ -1,15 +1,12 @@
-export const drawChart = (dates, counts) => {
-  if ($(window).width() < 768) {
-    $("#chart").css("width", ($(window).width() - 60) + "px")
-  }
+export const drawChart = (dates, maxs, mins, avgs) => {
 
-  var chart = echarts.init(document.getElementById('record_chart'));
+  var chart = echarts.init(document.getElementById('chart'));
   var option = {
       tooltip : {
           trigger: 'axis'
       },
       legend: {
-          data:['房价曲线']
+          data:['平均', '最低', '最高']
       },
       grid: {
           left: '3%',
@@ -19,32 +16,38 @@ export const drawChart = (dates, counts) => {
       },
       xAxis : [{
           type : 'category',
-          data : dates,
-          splitLine: {
-              show: false
-          },
+          data : dates
       }],
       yAxis : [{
           type : 'value',
-          name : '万元/平米',
-
+          name : '万元/平米'
       }],
       series : [{
-          name:'万元/平米',
-          type:'line',
-          stack: '总量',
-          symbolSize: 8,
-          lineStyle: {
-              normal: {
-                  opacity: 1
-              }
-          },
-          data: counts
-      }]
+            name: '平均',
+            type:'line',
+            data: avgs
+        },
+        {
+            name:'最低',
+            type:'line',
+            data: mins
+        },
+        {
+            name:'最高',
+            type:'line',
+            data: maxs
+        }
+      ]
   };
   chart.setOption(option);
-  window.onresize = () => {
-    $("#record_chart").css("width", ($(window).width() - 60) + "px")
+  var chartResize = () => {
+    if ($(window).width() < 768) {
+      $("#chart").css("width", ($(window).width() - 60) + "px")
+    } else {
+      $("#chart").css("width", ($(window).width() - 200) + "px")
+    }
     chart.resize();
   }
+  chartResize();
+  window.onresize = chartResize;
 }

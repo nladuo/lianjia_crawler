@@ -19,19 +19,21 @@
     <div class="container" id="app">
       <!-- 查找框 -->
       <div class="form-group" role="form">
-         <div class="input-group">
-           <select class="form-control" placeholder="选择区" v-model="selectedDistrict">
-             <option v-for="district in districts">{{ district.name }}</option>
-           </select>
-           <select class="form-control" placeholder="选择地点" v-model="selectedLocation">
-             <option v-for="location in locations">{{ location }}</option>
-           </select>
-           <div class="input-group-btn">
+          <div class="col-sm-4">
+             <select class="form-control" placeholder="选择区" v-model="selectedDistrict">
+               <option v-for="district in districts">{{ district.name }}</option>
+             </select>
+          </div>
+          <div class="col-sm-4">
+             <select class="form-control" placeholder="选择地点" v-model="selectedLocation">
+               <option v-for="location in locations">{{ location }}</option>
+             </select>
+          </div>
+          <div class="col-sm-3">
              <button @click="getSum" class="btn btn-primary btn-block">查询房价曲线</button>
-           </div>
-         </div>
+          </div>
       </div>
-
+      <br><br><br>
       <div id="chart" style="width: 560px;height:340px;"></div>
 
     </div>

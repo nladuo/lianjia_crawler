@@ -4,7 +4,7 @@
 
 
 import Api from "./utils/api"
-// import { drawChart } from "./chart"
+import { drawChart } from "./chart"
 
 
 new Vue({
@@ -18,7 +18,7 @@ new Vue({
      locations() {
        for (var i = 0; i < this.districts.length; i++) {
          if(this.selectedDistrict == this.districts[i].name) {
-           console.log(this.districts[i].locations);
+          //  console.log(this.districts[i].locations);
            let _locations = JSON.parse(this.districts[i].locations);
            this.selectedLocation = _locations[0];
            return _locations;
@@ -44,7 +44,7 @@ new Vue({
        Api.get("/api/sum", {location: this.selectedLocation}, (data) => {
          console.log(JSON.stringify(data));
          if (data != null) {
-
+           drawChart(['4-5', '5-5'], [120, 130], [110, 125], [115, 127])
          }
        })
      }
