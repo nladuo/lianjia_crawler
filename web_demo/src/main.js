@@ -5,27 +5,42 @@
 
 import Api from "./utils/api"
 import { drawChart } from "./chart"
+import { getDate } from './utils/time'
 
 
 new Vue({
    el: '#app',
    data: {
      districts: [],
-     selectedDistrict: "",
-     selectedLocation: null
+     selected_district: "",
+     selected_location: "",
+     locations: []
    },
    computed: {
-     locations() {
-       for (var i = 0; i < this.districts.length; i++) {
-         if(this.selectedDistrict == this.districts[i].name) {
-          //  console.log(this.districts[i].locations);
-           let _locations = JSON.parse(this.districts[i].locations);
-           this.selectedLocation = _locations[0];
-           return _locations;
+     selectedDistrict: {
+       get() {
+        return this.selected_district;
+       },
+       set(district) {
+         this.selected_district = district;
+         for (var i = 0; i < this.districts.length; i++) {
+           if(this.selected_district == this.districts[i].name) {
+             this.locations = JSON.parse(this.districts[i].locations);
+             this.selectedLocation = this.locations[0];
+           }
          }
        }
-       return [];
+     },
+     selectedLocation: {
+       get(){
+         return this.selected_location;
+       },
+       set(loc) {
+         this.selected_location = loc;
+         this.getSum();
+       }
      }
+
    },
    ready() {
      this.getDistricts();
@@ -41,10 +56,18 @@ new Vue({
      },
 
      getSum() {
-       Api.get("/api/sum", {location: this.selectedLocation}, (data) => {
-         console.log(JSON.stringify(data));
+       Api.get("/api/sum", {location: this.selected_location}, (data) => {
          if (data != null) {
-           drawChart(['4-5', '5-5'], [120, 130], [110, 125], [115, 127])
+           let dates = [], maxs = [], mins = [], avgs = [];
+           data.forEach((item)=>{
+             dates.push(getDate(item.time))
+             maxs.push(item.max);
+             mins.push(item.min);
+             avgs.push(item.avg);
+           })
+           drawChart(dates, maxs, mins, avgs)
+         } else {
+           alert("Error Occurred");
          }
        })
      }
