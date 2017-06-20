@@ -8,7 +8,7 @@ import json
 class LinkSpider(scrapy.Spider):
     name = "link"
     s_urls = [
-        'http://bj.lianjia.com/ershoufang/',
+        'https://bj.lianjia.com/ershoufang/',
     ]
 
     def start_requests(self):
@@ -18,15 +18,14 @@ class LinkSpider(scrapy.Spider):
                              errback=lambda r, k="", i="": self.errback(r, k, i))
 
     def parse(self, response):
-        if not (response.url.startswith("http://bj.lianjia") or
-                    response.url.startswith("https://bj.lianjia")):
+        if not response.url.startswith("https://bj.lianjia"):
             yield scrapy.Request(self.s_urls[0],
                                  dont_filter=True,
                                  callback=self.parse,
                                  errback=lambda r, k="", i="": self.errback(r, k, i))
 
         for detail in response.css("div.position dd div")[0].css("a"):
-            url = "http://bj.lianjia.com/%s" % detail.css('a::attr(href)').\
+            url = "https://bj.lianjia.com/%s" % detail.css('a::attr(href)').\
                 extract_first()
             print url
             district = detail.css('a::text').extract_first()
@@ -36,8 +35,7 @@ class LinkSpider(scrapy.Spider):
                                  errback=lambda r, k=url, i=district: self.errback(r, k, i))
 
     def parse_detail(self, response, url, district):
-        if not (response.url.startswith("http://bj.lianjia") or
-                    response.url.startswith("https://bj.lianjia")):
+        if not response.url.startswith("https://bj.lianjia"):
             print "Anti-Spider occurred, \n\tredirect to: ", response.url, "\n\tre-adding url:", url
             yield scrapy.Request(url,
                                  dont_filter=True,
@@ -52,7 +50,7 @@ class LinkSpider(scrapy.Spider):
             link = LinkItem()
             link["district"] = district
             link["location"] = detail.css('a::text').extract_first()
-            link["url"] = "http://bj.lianjia.com/%s" % detail.css('a::attr(href)').\
+            link["url"] = "https://bj.lianjia.com/%s" % detail.css('a::attr(href)').\
                 extract_first()
             locations.append(link["location"])
             print link["url"]

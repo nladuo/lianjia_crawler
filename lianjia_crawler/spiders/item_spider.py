@@ -39,8 +39,7 @@ class ItemSpider(scrapy.Spider):
 
     def parse_item(self, response, link_id, init_url, base_url):
         # ip被禁了, 或者代理出现错误
-        if not (response.url.startswith("http://bj.lianjia") or
-                    response.url.startswith("https://bj.lianjia")):
+        if not response.url.startswith("https://bj.lianjia"):
             print "Anti-Spider occurred, \n\tredirect to: ", response.url, "\n\tre-adding url:", init_url
             failed_url = FailedUrl()
             failed_url["url"] = init_url
