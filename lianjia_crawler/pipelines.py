@@ -44,6 +44,10 @@ class MongoDBPipeline(object):
         if isinstance(item, DistrictItem):
             if self.districts.find({"url": item["url"]}).count() == 0:
                 self.districts.insert(dict(item))
+            else:
+                self.districts.update({'url': item["url"]}, {
+                    '$set': {'locations': item["locations"]}
+                })
         elif isinstance(item, LinkItem):
             if self.links.find({"url": item["url"]}).count() == 0:
                 self.links.insert(dict(item))

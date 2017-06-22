@@ -6,6 +6,8 @@ import time
 import sys
 import logging
 import re
+import json
+import requests
 from lianjia_crawler.pipelines import MongoDBPipeline
 from lianjia_crawler.spiders.item_spider import ItemSpider
 from lianjia_crawler.spiders.link_spider import LinkSpider
@@ -15,6 +17,12 @@ reload(sys)
 sys.setdefaultencoding('utf8')
 
 scrapydo.setup()
+
+
+def check_ip_num():
+    """ 检查当前存在的可用代理ip数目 """
+    resp = requests.get("http://127.0.0.1:8000/select?name=lianjia")
+    return len(json.loads(resp.content))
 
 
 def summarize():
