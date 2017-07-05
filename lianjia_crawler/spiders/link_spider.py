@@ -52,9 +52,10 @@ class LinkSpider(scrapy.Spider):
             link["location"] = detail.css('a::text').extract_first()
             link["url"] = "https://bj.lianjia.com/%s" % detail.css('a::attr(href)').\
                 extract_first()
-            locations.append(link["location"])
             print link["url"]
-            yield link
+            if "lf.lianjia" not in link["url"]: # 不统计廊坊的
+                locations.append(link["location"])
+                yield link
         district_item["locations"] = json.dumps(locations)
         yield district_item
 
