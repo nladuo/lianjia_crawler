@@ -27,7 +27,7 @@ class LinkSpider(scrapy.Spider):
         for detail in response.css("div.position dd div")[0].css("a"):
             url = "https://bj.lianjia.com/%s" % detail.css('a::attr(href)').\
                 extract_first()
-            print url
+            print "区:", url
             if "lf.lianjia.com" in url:  # 不统计廊坊的
                 continue
             district = detail.css('a::text').extract_first()
@@ -55,7 +55,7 @@ class LinkSpider(scrapy.Spider):
             link["url"] = "https://bj.lianjia.com/%s" % detail.css('a::attr(href)').\
                 extract_first()
             locations.append(link["location"])
-            print link["url"]
+            print "链接:", link["url"]
             yield link
         district_item["locations"] = json.dumps(locations)
         yield district_item

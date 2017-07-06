@@ -66,7 +66,7 @@ if __name__ == "__main__":
         mongo = MongoDBPipeline()
         t = time.time()
 
-        # 1、清空items表和link表, 暂时不清空
+        # 1、清空items表和link表
         mongo.db["items"].delete_many({})
         mongo.db["links"].delete_many({})
 
