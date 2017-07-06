@@ -54,8 +54,6 @@ class ItemSpider(scrapy.Spider):
         if response.css("div.m-noresult").extract_first() is not None:
             return
 
-        print response.url
-
         # 保存到mongodb
         for li in response.css('li.clear div.info'):
             item = Item()
