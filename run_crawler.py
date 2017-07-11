@@ -81,8 +81,8 @@ if __name__ == "__main__":
         scrapydo.run_spider(ItemSpider)
         if mongo.get_failed_urls().count() == 0:
             break
-        print "休息半个小时...."
-        time.sleep(1800)
+        print "休息10分钟...."
+        time.sleep(600)
         print "开始再次爬取房源...."
 
     print "爬取结束, 耗时%d秒" % (time.time() - t)
