@@ -62,7 +62,7 @@ if __name__ == "__main__":
         format='%(levelname)s %(asctime)s: %(message)s',
         level=logging.DEBUG
     )
-
+    print "开始连接mongodb....."
     mongo = MongoDBPipeline()
     t = time.time()
 
