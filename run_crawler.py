@@ -62,33 +62,33 @@ if __name__ == "__main__":
         format='%(levelname)s %(asctime)s: %(message)s',
         level=logging.DEBUG
     )
+
+    mongo = MongoDBPipeline()
+    t = time.time()
+
+    # 1、清空items表和link表
+    print "开始清空items和links表....."
+    mongo.db["items"].delete_many({})
+    mongo.db["links"].delete_many({})
+
+    # 2、爬取链接，并更新district
+    print "开始爬取区域链接....."
+    scrapydo.run_spider(LinkSpider)
+
+    # 3、爬取item
     while True:
-        mongo = MongoDBPipeline()
-        t = time.time()
+        print "爬取房源中....."
+        scrapydo.run_spider(ItemSpider)
+        if mongo.get_failed_urls().count() == 0:
+            break
+        print "休息半个小时...."
+        time.sleep(1800)
+        print "开始再次爬取房源...."
 
-        # 1、清空items表和link表
-        mongo.db["items"].delete_many({})
-        mongo.db["links"].delete_many({})
+    print "爬取结束, 耗时%d秒" % (time.time() - t)
 
-        # 2、爬取链接，并更新district
-        print "开始爬取区域链接....."
-        scrapydo.run_spider(LinkSpider)
+    # 4、根据location的名字进行统计
+    print "开始统计..."
+    summarize()
 
-        # 3、爬取item
-        while True:
-            print "爬取房源中....."
-            scrapydo.run_spider(ItemSpider)
-            if mongo.get_failed_urls().count() == 0:
-                break
-            print "休息半个小时...."
-            time.sleep(1800)
-            print "开始再次爬取房源...."
-
-        print "爬取结束, 耗时%d秒" % (time.time() - t)
-
-        # 4、根据location的名字进行统计
-        print "开始统计..."
-        summarize()
-
-        print "统计完成!!歇5天!!"
-        time.sleep(5 * 24 * 3600)  # 五天之后再次运行
+    print "统计完成!!"
