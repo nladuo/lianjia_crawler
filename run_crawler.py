@@ -22,7 +22,9 @@ scrapydo.setup()
 def check_ip_num():
     """ 检查当前存在的可用代理ip数目 """
     resp = requests.get("http://127.0.0.1:8000/select?name=lianjia")
-    return len(json.loads(resp.content))
+    count = len(json.loads(resp.content))
+    print "当前可用ip数目:", count
+    return count
 
 
 def summarize():
@@ -77,12 +79,14 @@ if __name__ == "__main__":
 
     # 3、爬取item
     while True:
+        if check_ip_num() < 25:
+            print "ip数不足25, 休息10分钟...."
+            time.sleep(600)
+            continue
         print "爬取房源中....."
         scrapydo.run_spider(ItemSpider)
         if mongo.get_failed_urls().count() == 0:
             break
-        print "休息10分钟...."
-        time.sleep(600)
         print "开始再次爬取房源...."
 
     print "爬取结束, 耗时%d秒" % (time.time() - t)
