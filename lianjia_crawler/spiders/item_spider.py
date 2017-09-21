@@ -49,43 +49,51 @@ class ItemSpider(scrapy.Spider):
             return
 
         print response.url
+        # 添加异常处理
+        try:
+            # 没有任何结果
+            if response.css("div.m-noresult").extract_first() is not None:
+                return
 
-        # 没有任何结果
-        if response.css("div.m-noresult").extract_first() is not None:
-            return
+            # 保存到mongodb
+            for li in response.css('li.clear div.info'):
+                item = Item()
+                item["title"] = li.css('div.title a::text').extract_first()
+                item["address"] = li.css('div.address div::text').extract_first()
+                if u"车位" in item["address"]:
+                    print "Skipped:", item["title"], item["address"]
+                    del item
+                    continue
+                item["link_id"] = link_id
+                item["url"] = li.css('div.title a::attr(href)').extract_first()
+                item["xiaoqu"] = li.css('div.address a::text').extract_first()
+                item["flood"] = li.css('div.flood div::text').extract_first()
+                item["tag"] = li.css('div.tag span::text').extract_first()
+                item["total_price"] = li.css('div.totalPrice span::text').extract_first() + \
+                             li.css('div.totalPrice::text').extract_first()
+                item["unit_price"] = li.css('div.unitPrice span::text').extract_first()
+                item["time"] = time()
 
-        # 保存到mongodb
-        for li in response.css('li.clear div.info'):
-            item = Item()
-            item["title"] = li.css('div.title a::text').extract_first()
-            item["address"] = li.css('div.address div::text').extract_first()
-            if u"车位" in item["address"]:
-                print "Skipped:", item["title"], item["address"]
-                del item
-                continue
-            item["link_id"] = link_id
-            item["url"] = li.css('div.title a::attr(href)').extract_first()
-            item["xiaoqu"] = li.css('div.address a::text').extract_first()
-            item["flood"] = li.css('div.flood div::text').extract_first()
-            item["tag"] = li.css('div.tag span::text').extract_first()
-            item["total_price"] = li.css('div.totalPrice span::text').extract_first() + \
-                         li.css('div.totalPrice::text').extract_first()
-            item["unit_price"] = li.css('div.unitPrice span::text').extract_first()
-            item["time"] = time()
+                print item["url"], item["title"], item["unit_price"]
+                yield item
 
-            print item["url"], item["title"], item["unit_price"]
-            yield item
-
-        # 提取下一页
-        page_data = json.loads(response.css('div.contentBottom div.house-lst-page-box::attr(page-data)').
-                               extract_first())
-        if page_data["curPage"] < page_data["totalPage"]:
-            url = base_url + "pg%d/" % (page_data["curPage"] + 1)
-            print url
-            yield scrapy.Request(url,
-                                 dont_filter=True,
-                                 callback=lambda r, k=link_id, m=url, i=base_url: self.parse_item(r, k, m, i),
-                                 errback=lambda f, k=link_id, m=url, i=base_url: self.errback(f, k, m, i))
+            # 提取下一页
+            page_data = json.loads(response.css('div.contentBottom div.house-lst-page-box::attr(page-data)').
+                                   extract_first())
+            if page_data["curPage"] < page_data["totalPage"]:
+                url = base_url + "pg%d/" % (page_data["curPage"] + 1)
+                print url
+                yield scrapy.Request(url,
+                                     dont_filter=True,
+                                     callback=lambda r, k=link_id, m=url, i=base_url: self.parse_item(r, k, m, i),
+                                     errback=lambda f, k=link_id, m=url, i=base_url: self.errback(f, k, m, i))
+        except Exception as ex:
+            print "Exception:", ex, "re-adding", init_url
+            failed_url = FailedUrl()
+            failed_url["url"] = init_url
+            failed_url["base_url"] = base_url
+            failed_url["link_id"] = link_id
+            yield failed_url
 
     def errback(self, failure, link_id, init_url, base_url):
         print repr(failure)
