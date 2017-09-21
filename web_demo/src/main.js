@@ -58,14 +58,15 @@ new Vue({
      getSum() {
        Api.get("/api/sum", {location: this.selected_location}, (data) => {
          if (data != null) {
-           let dates = [], maxs = [], mins = [], avgs = [];
+           let dates = [], maxs = [], mins = [], avgs = [], house_nums=[];
            data.forEach((item)=>{
              dates.push(getDate(item.time))
              maxs.push(item.max);
              mins.push(item.min);
              avgs.push(item.avg);
+             house_nums.push(item.house_num)
            })
-           drawChart(dates, maxs, mins, avgs)
+           drawChart(dates, maxs, mins, avgs, house_nums)
          } else {
            alert("Error Occurred");
          }

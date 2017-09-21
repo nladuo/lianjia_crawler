@@ -69,12 +69,11 @@ if __name__ == "__main__":
     t = time.time()
 
     # 1、清空items表和link表
-    print "开始清空items和links表....."
+    print "开始清空items表....."
     mongo.db["items"].delete_many({})
-    mongo.db["links"].delete_many({})
 
     # 2、爬取链接，并更新district
-    print "开始爬取区域链接....."
+    print "开始更新区域链接....."
     scrapydo.run_spider(LinkSpider)
 
     # 3、爬取item

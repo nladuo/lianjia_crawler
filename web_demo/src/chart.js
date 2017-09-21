@@ -1,4 +1,4 @@
-export const drawChart = (dates, maxs, mins, avgs) => {
+export const drawChart = (dates, maxs, mins, avgs, house_nums) => {
 
   var chart = echarts.init(document.getElementById('chart'));
   var option = {
