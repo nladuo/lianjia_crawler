@@ -78,12 +78,13 @@ if __name__ == "__main__":
 
     # 3、爬取item
     while True:
-        if check_ip_num() < 25:
-            print "ip数不足25, 休息10分钟...."
+        if check_ip_num() < 15:
+            print "ip数不足15, 休息10分钟...."
             time.sleep(600)
             continue
         print "爬取房源中....."
         scrapydo.run_spider(ItemSpider)
+        print "当前failed_url数目:", mongo.get_failed_urls().count()
         if mongo.get_failed_urls().count() == 0:
             break
         print "开始再次爬取房源...."
